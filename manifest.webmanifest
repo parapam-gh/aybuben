@@ -1,7 +1,7 @@
 {
-  "name": "Айбубен",
-  "short_name": "Айбубен",
-  "description": "Армянский алфавит через русский текст",
+  "name": "Apres",
+  "short_name": "Apres",
+  "description": "Армянский по пять минут в день",
   "lang": "ru",
   "start_url": "./",
   "scope": "./",
