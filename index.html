@@ -944,7 +944,7 @@ body.view-home .foot { display: none; }
   <footer class="foot">
     <p>Буквы, слова и фразы из уроков с Зарой. Текст в уроках алфавита: А. С. Пушкин, «Путешествие в Арзрум», глава вторая (Викитека).</p>
     <p id="sync-note" hidden></p>
-    <p class="build-note">Версия от 09.10.2026, 13:21</p>
+    <p class="build-note">Версия от 09.10.2026, 13:23</p>
   </footer>
 </div>
 
@@ -2456,7 +2456,9 @@ body.view-home .foot { display: none; }
       if (act === 'next') {
         if (e.type === 'intro') {   // карточка появится через пару шагов, уже как вопрос
           if (!T.cards[e.it.k]) { T.cards[e.it.k] = { st: 0, f: 1, ok: 0, d: 0, lp: 0, r: 0, last: '', due: TN }; saveT(); }
-          S.q.splice(Math.min(S.i + 3, S.q.length), 0, { type: 'card', it: e.it, f: 1 });
+          var firstRe = S.q.length;   // вопрос по новому — до повторов ошибок, иначе «15 из 15» покажется раньше времени
+          for (var z = S.i + 1; z < S.q.length; z++) if (S.q[z].re) { firstRe = z; break; }
+          S.q.splice(Math.min(S.i + 3, firstRe), 0, { type: 'card', it: e.it, f: 1 });
         }
         S.i++; renderEntry(); return;
       }
