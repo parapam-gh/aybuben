@@ -565,6 +565,7 @@ body.view-home .foot { display: none; }
 .finish .petsm span { font-size: 0.9rem; color: var(--muted); max-width: 12rem; }
 .fcard { background: var(--surface); border: 1px solid var(--rule); border-radius: 14px; padding: 0.8rem 1rem; font-size: 0.95rem; line-height: 1.45; }
 .fcard .k { display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin-bottom: 0.2rem; }
+.fcard .fq { margin: 0 0 0.35rem; font-family: var(--serif); font-style: italic; color: var(--muted); }
 .fcard.row { display: flex; justify-content: space-between; align-items: center; gap: 0.7rem; }
 .fcard.row .go { color: var(--accent); font-weight: 600; white-space: nowrap; }
 .fcard.row .sub { display: block; font-size: 0.82rem; color: var(--muted); }
@@ -943,7 +944,7 @@ body.view-home .foot { display: none; }
   <footer class="foot">
     <p>Буквы, слова и фразы из уроков с Зарой. Текст в уроках алфавита: А. С. Пушкин, «Путешествие в Арзрум», глава вторая (Викитека).</p>
     <p id="sync-note" hidden></p>
-    <p class="build-note">Версия от 08.10.2026, 10:58</p>
+    <p class="build-note">Версия от 09.10.2026, 13:13</p>
   </footer>
 </div>
 
@@ -2230,11 +2231,15 @@ body.view-home .foot { display: none; }
     return { ask: 'прочитай', k: x.k, prompt: '<p class="test-glyph" lang="hy">' + esc(x.hy) + '</p>',
       options: shuffle([x].concat(others)).map(function (o) { return { right: o === x, html: '<span class="opt-main">' + esc(o.lat) + '</span><span class="opt-hy">' + esc(o.ru) + '</span>' }; }) };
   }
+  function usefulHints(hints, ans) {   // подсказка, равная всему ответу, выдаёт его целиком — такую не предлагаем
+    var full = norm(ans[0].lat);
+    return (hints || []).filter(function (h) { return !h.lat || norm(h.lat) !== full; });
+  }
   function answersOf(it) {   // варианты ответа латиницей + подсказки
     var x = it.x;
     if (it.kind === 'word') return { ru: x.short, ans: x.ans, hints: [{ ru: x.short, script: x.hy }] };
-    if (it.kind === 'phrase') { var t = pick(x.tasks); return { ru: t.ru, ans: t.ans, hints: t.hints }; }
-    return { ru: x.ru, ans: x.ans, hints: x.hints };
+    if (it.kind === 'phrase') { var t = pick(x.tasks); return { ru: t.ru, ans: t.ans, hints: usefulHints(t.hints, t.ans) }; }
+    return { ru: x.ru, ans: x.ans, hints: usefulHints(x.hints, x.ans) };
   }
   function chunks(s) {
     var out = [], i = 0;
@@ -2519,7 +2524,7 @@ body.view-home .foot { display: none; }
     todayEl.innerHTML = '<div class="finish"><p class="apres" lang="hy">Ապրես</p><p class="big">' + big + '</p>' +
       (ms.length ? '<p class="milestone">' + ms.map(esc).join(' · ') + '</p>' : '') +
       '<div class="petsm">' + petImg(stage, 'happy') + '<span>' + esc(petNote) + '</span></div>' +
-      (f ? '<div class="fcard"><span class="k">Разгадка дня</span>' + esc(f.a) + '</div>' : '') +
+      (f ? '<div class="fcard"><span class="k">Разгадка дня</span><p class="fq">' + esc(f.q) + '</p>' + esc(f.a) + '</div>' : '') +
       (stumbles.length ? '<div class="fcard"><span class="k">Где споткнулась</span><ul class="mistakes">' + stumbles.map(function (r) { return '<li>' + stumbleLine(r.it) + '</li>'; }).join('') + '</ul></div>' : '') +
       '<div class="fcard row"><div><b>Сказка</b><span class="sub">«Храбрый Назар» появится во втором этапе</span></div><span class="go">скоро</span></div>' +
       '<p class="streak">Серия ' + plural(T.streak, 'день', 'дня', 'дней') + ' ' + livesHtml(true) + (perfectWeek() ? ' · неделя без пропусков' : '') + '</p>' +
