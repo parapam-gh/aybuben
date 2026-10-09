@@ -944,7 +944,7 @@ body.view-home .foot { display: none; }
   <footer class="foot">
     <p>Буквы, слова и фразы из уроков с Зарой. Текст в уроках алфавита: А. С. Пушкин, «Путешествие в Арзрум», глава вторая (Викитека).</p>
     <p id="sync-note" hidden></p>
-    <p class="build-note">Версия от 09.10.2026, 13:17</p>
+    <p class="build-note">Версия от 09.10.2026, 13:21</p>
   </footer>
 </div>
 
@@ -1462,8 +1462,10 @@ body.view-home .foot { display: none; }
   var GRAM = {}, PRONOUNS = { yes: 1, du: 1, na: 1, menk: 1, duk: 1, nrank: 1 }, VOCAB = {};
   'yes du na menk duk nrank em es e enk ek en chem ches chi chenk chek chen'.split(' ').forEach(function (w) { GRAM[w] = 1; });
   DATA.vocabLat.forEach(function (w) { VOCAB[w] = 1; });
-  function norm(s) {
-    return String(s).toLowerCase().replace(/[’'`ʼ]/g, '').replace(/[?!.,;:«»"()…—–\-]/g, ' ').replace(/\s+/g, ' ').trim();
+  var HOMO = { 'а': 'a', 'е': 'e', 'о': 'o', 'р': 'p', 'с': 'c', 'у': 'y', 'х': 'x', 'к': 'k', 'м': 'm', 'т': 't', 'і': 'i', 'ё': 'e' };
+  function norm(s) {   // русские буквы-двойники с русской клавиатуры (о, а, с…) считаем латинскими
+    return String(s).toLowerCase().replace(/[аеорсухкмтіё]/g, function (ch) { return HOMO[ch]; })
+      .replace(/[’'`ʼ]/g, '').replace(/[?!.,;:«»"()…—–\-]/g, ' ').replace(/\s+/g, ' ').trim();
   }
   function kq(t) { return t.replace(/q/g, 'k'); }  // Зара пишет ք и как q, и как k
   function canon(t) { return kq(t).replace(/^ye/, 'e').replace(/^vo/, 'o').replace(/kh/g, 'x').replace(/ts/g, 'c').replace(/(.)\1+/g, '$1'); }
@@ -2306,7 +2308,9 @@ body.view-home .foot { display: none; }
   }
   function sessHead() {
     var pct = Math.min(100, Math.round(100 * S.answered / S.total));
-    var label = S.answered < S.total ? S.answered + ' из ' + S.total : S.total + ' из ' + S.total + (S.re ? ' · повтор ' + Math.min(S.re, S.answered - S.total + 1) + ' из ' + S.re : '');
+    var cur = S.cur && S.cur.e, label;
+    if (cur && cur.re) label = S.total + ' из ' + S.total + ' · повтор ' + Math.min(S.re, (S.reDone || 0) + (S.cur.checked ? 0 : 1)) + ' из ' + S.re;
+    else label = Math.min(S.answered, S.total) + ' из ' + S.total;
     return '<div class="sess-top"><div class="mini" id="sess-pet">' + petImg(petStage(), 'calm') + '</div>' +
       '<div><div class="sess-bar"><span style="width:' + pct + '%"></span></div></div>' +
       '<div class="sess-count">' + label + '</div></div>';
@@ -2378,6 +2382,7 @@ body.view-home .foot { display: none; }
   function afterAnswer(ok, delay) {
     var e = S.cur.e;
     S.answered++; if (ok) S.ok++;
+    if (e.re) S.reDone = (S.reDone || 0) + 1;
     if (!e.re) { S.first = (S.first || 0) + 1; if (ok) S.okFirst = (S.okFirst || 0) + 1; }
     if (e.type === 'card') S.results.push({ it: e.it, ok: ok });
     if (e.type === 'card') {
